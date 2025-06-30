@@ -1,0 +1,36 @@
+{
+  "name": "saas-packages",
+  "version": "1.0.0",
+  "description": "Personal Node.js TypeScript libraries for SaaS applications",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean",
+    "type-check": "pnpm -r type-check",
+    "publish-packages": "pnpm -r publish",
+    "core": "pnpm --filter core",
+    "db-mgr": "pnpm --filter database-manager",
+    "mq-mgr": "pnpm --filter queue-manager"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0",
+    "rimraf": "^5.0.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
