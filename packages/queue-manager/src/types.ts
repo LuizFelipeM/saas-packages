@@ -10,6 +10,22 @@ export interface JobResult {
   error?: string;
 }
 
+export type QueueManagerEvent =
+  | "queueCreated"
+  | "queueRemoved"
+  | "workerCreated"
+  | "workerRemoved"
+  | "newListener"
+  | "removeListener"
+  | "queueManagerClosed";
+
+export interface QueueManagerListener {
+  queueEvent: (queue: Queue) => void;
+  workerEvent: (worker: Worker) => void;
+  listenerEvent: (event: string, listener: (...args: any[]) => void) => void;
+  queueManagerClosed: () => void;
+}
+
 export interface QueueJobOptions {
   delay?: number;
   priority?: number;
