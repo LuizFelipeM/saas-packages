@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "@saas-packages/core": "^1.1.2"
+    "@saas-packages/core": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.4",
