@@ -1,0 +1,70 @@
+# Source files
+src/
+*.ts
+*.tsx
+!*.d.ts
+
+# Development files
+.eslintrc.js
+.prettierrc
+tsconfig.json
+*.config.js
+*.config.ts
+
+# Testing
+test/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+coverage/
+
+# Development dependencies
+node_modules/
+.npm/
+.npmrc
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Cache and temporary files
+.cache/
+.tmp/
+.temp/
+*.cache
+
+# Documentation (keep README.md)
+docs/
+*.md
+!README.md
+
+# Examples
+examples/
+example/
+demo/
+demos/
+
+# TypeScript declaration maps
+*.d.ts.map
+
+# Keep only the compiled output
+# The dist/ directory should be included in the published package 

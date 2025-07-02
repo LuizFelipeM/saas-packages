@@ -1,6 +1,6 @@
 {
   "name": "@saas-packages/database-manager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Database manager for SaaS applications using Prisma",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
