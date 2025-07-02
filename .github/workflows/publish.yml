@@ -1,9 +1,10 @@
 name: Publish Packages to npm
 
 on:
+  workflow_dispatch:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - master
 
 jobs:
   publish:
