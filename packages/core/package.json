@@ -11,13 +11,18 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"No tests specified\" && exit 0",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "tsyringe": "^4.8.0",
@@ -29,6 +34,14 @@
     "rimraf": "^5.0.0"
   },
   "keywords": ["dependency-injection", "container", "core", "saas"],
-  "author": "Your Name",
-  "license": "MIT"
-} 
+  "author": "Luiz Felipe",
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luizfelipem/saas-packages.git",
+    "directory": "packages/core"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

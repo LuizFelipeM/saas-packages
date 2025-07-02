@@ -1,5 +1,4 @@
 import { Job, Queue, Worker, QueueOptions, WorkerOptions } from 'bullmq';
-import { QueueConfig } from '@saas-packages/core';
 
 export interface JobData {
   [key: string]: any;
@@ -21,6 +20,16 @@ export interface QueueJobOptions {
   };
   removeOnComplete?: boolean | number;
   removeOnFail?: boolean | number;
+}
+
+export interface QueueConfig {
+  redis: {
+    host: string;
+    port: number;
+    password?: string;
+    db?: number;
+  };
+  prefix?: string;
 }
 
 export interface QueueManagerConfig extends QueueConfig {

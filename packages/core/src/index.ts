@@ -14,25 +14,6 @@ export interface ServiceProvider {
   register(container: any): void;
 }
 
-export interface DatabaseConfig {
-  url: string;
-  host?: string;
-  port?: number;
-  username?: string;
-  password?: string;
-  database?: string;
-}
-
-export interface QueueConfig {
-  redis: {
-    host: string;
-    port: number;
-    password?: string;
-    db?: number;
-  };
-  prefix?: string;
-}
-
 export interface Logger {
   info(message: string, ...args: any[]): void;
   error(message: string, ...args: any[]): void;

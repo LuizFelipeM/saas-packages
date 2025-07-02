@@ -1,6 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { ITXClientDenyList } from '@prisma/client/runtime/library';
-import { DatabaseConfig } from '@saas-packages/core';
+
+export interface DatabaseConfig {
+  url: string;
+  host?: string;
+  port?: number;
+  username?: string;
+  password?: string;
+  database?: string;
+}
 
 export interface DatabaseManagerConfig extends DatabaseConfig {
   logQueries?: boolean;
