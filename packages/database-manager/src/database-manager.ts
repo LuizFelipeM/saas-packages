@@ -1,10 +1,12 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { ITXClientDenyList } from '@prisma/client/runtime/library';
 import { injectable, inject } from '@saas-packages/core';
 import {
   DatabaseManagerInterface,
   DatabaseManagerConfig,
   DatabaseHealthCheck,
+  DatabaseManagerLogDefinition,
+  DatabaseManagerLogLevel,
 } from './types';
 
 @injectable()
@@ -21,7 +23,7 @@ export class DatabaseManager implements DatabaseManagerInterface {
     this.config = config;
     this.logger = logger || console;
 
-    const logOptions: (Prisma.LogLevel | Prisma.LogDefinition)[] = [];
+    const logOptions: (DatabaseManagerLogLevel | DatabaseManagerLogDefinition)[] = [];
     if (this.config.logQueries)
       logOptions.push({ level: 'query', emit: 'event' });
     if (this.config.logErrors)

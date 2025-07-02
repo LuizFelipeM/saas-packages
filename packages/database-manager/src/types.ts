@@ -1,6 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { ITXClientDenyList } from '@prisma/client/runtime/library';
 
+export type DatabaseManagerLogLevel = 'info' | 'query' | 'warn' | 'error';
+
+export type DatabaseManagerLogDefinition = {
+  level: DatabaseManagerLogLevel;
+  emit: 'event' | 'stdout';
+};
+
 export interface DatabaseConfig {
   url: string;
   host?: string;
