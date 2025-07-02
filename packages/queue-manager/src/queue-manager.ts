@@ -20,7 +20,10 @@ import {
 import { EventEmitter } from 'events';
 
 @injectable()
-export class QueueManager extends EventEmitter implements QueueManagerInterface {
+export class QueueManager
+  extends EventEmitter
+  implements QueueManagerInterface
+{
   private readonly queues: Map<string, Queue> = new Map();
   private readonly workers: Map<string, Worker> = new Map();
   private readonly redis: Redis;
@@ -91,11 +94,11 @@ export class QueueManager extends EventEmitter implements QueueManagerInterface 
     return queue;
   }
 
-  createWorker(
+  createWorker<T = any>(
     queueName: string,
-    processor: JobProcessor,
-    options?: Partial<WorkerOptions>
-  ): Worker {
+    processor: JobProcessor<T>,
+    options?: Partial<Omit<WorkerOptions, 'connection'>>
+  ): Worker<T> {
     if (this.workers.has(queueName)) {
       this.logger?.warn(
         `Worker for queue ${queueName} already exists, returning existing worker`
@@ -106,10 +109,10 @@ export class QueueManager extends EventEmitter implements QueueManagerInterface 
     const workerOptions: WorkerOptions = {
       connection: this.redis,
       prefix: this.config.prefix || 'bull',
-      ...options,
+      ...options
     };
 
-    const worker = new Worker(
+    const worker = new Worker<T>(
       queueName,
       processor.process.bind(processor),
       workerOptions

@@ -1,4 +1,5 @@
 import { Job, Queue, Worker, QueueOptions, WorkerOptions } from 'bullmq';
+import { EventEmitter } from 'events';
 
 export interface JobData {
   [key: string]: any;
@@ -56,17 +57,32 @@ export interface JobProcessor<T = JobData> {
   process(job: Job<T>): Promise<JobResult>;
 }
 
-export interface QueueManagerInterface {
-  createQueue(name: string, options?: Partial<QueueOptions>): Queue;
-  createWorker(queueName: string, processor: JobProcessor, options?: Partial<WorkerOptions>): Worker;
+export interface QueueManagerInterface extends EventEmitter {
+  createQueue<T = any>(name: string, options?: Partial<QueueOptions>): Queue<T>;
+  createWorker<T = any>(queueName: string, processor: JobProcessor<T>, options?: Partial<WorkerOptions>): Worker<T>;
   addJob<T = JobData>(
     queueName: string,
     data: T,
     options?: QueueJobOptions
   ): Promise<Job<T>>;
-  getQueue(name: string): Queue | undefined;
-  getWorker(queueName: string): Worker | undefined;
+  getAllQueues(): Queue[];
+  getQueue<T = any>(name: string): Queue<T> | undefined;
+  getAllWorkers(): Worker[];
+  getWorker<T = any>(queueName: string): Worker<T> | undefined;
   closeQueue(name: string): Promise<void>;
   closeWorker(queueName: string): Promise<void>;
   closeAll(): Promise<void>;
+  subscribe<E extends QueueManagerEvent>(
+    event: E,
+    listener: E extends 'queueCreated' | 'queueRemoved'
+      ? QueueManagerListener['queueEvent']
+      : E extends 'workerCreated' | 'workerRemoved' | 'workerUpdated'
+        ? QueueManagerListener['workerEvent']
+          : E extends 'newListener' | 'removeListener'
+            ? QueueManagerListener['listenerEvent']
+            : E extends 'queueManagerClosed'
+              ? QueueManagerListener['queueManagerClosed']
+              : never
+  ): void;
+  unsubscribe(event: QueueManagerEvent, listener: (...args: any[]) => void): void;
 } 
