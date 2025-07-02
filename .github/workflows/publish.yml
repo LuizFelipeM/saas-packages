@@ -1,13 +1,10 @@
-name: Publish Packages to npm
+name: Publish All Packages (Fallback)
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 jobs:
-  publish:
+  publish-all:
     runs-on: ubuntu-latest
     
     steps:
@@ -28,10 +25,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install
         
-      - name: Build packages
+      - name: Build all packages
         run: pnpm build
         
       - name: Publish Core package
+        id: publish-core
+        continue-on-error: true
         run: |
           cd packages/core
           pnpm publish --no-git-checks
@@ -39,6 +38,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           
       - name: Publish Queue Manager package
+        id: publish-queue-manager
+        continue-on-error: true
         run: |
           cd packages/queue-manager
           pnpm publish --no-git-checks
@@ -46,8 +47,17 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           
       - name: Publish Database Manager package
+        id: publish-database-manager
+        continue-on-error: true
         run: |
           cd packages/database-manager
           pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Publish Summary
+        run: |
+          echo "Publish Summary:"
+          echo "Core package: ${{ steps.publish-core.outcome }}"
+          echo "Queue Manager package: ${{ steps.publish-queue-manager.outcome }}"
+          echo "Database Manager package: ${{ steps.publish-database-manager.outcome }}"

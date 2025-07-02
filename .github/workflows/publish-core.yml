@@ -1,0 +1,44 @@
+name: Publish Core Package
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/core/**'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/publish-core.yml'
+
+jobs:
+  publish-core:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Build core package
+        run: pnpm --filter @saas-packages/core build
+        
+      - name: Publish Core package
+        run: |
+          cd packages/core
+          pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 

@@ -1,0 +1,44 @@
+name: Publish Queue Manager Package
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/queue-manager/**'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/publish-queue-manager.yml'
+
+jobs:
+  publish-queue-manager:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Build queue-manager package
+        run: pnpm --filter queue-manager build
+        
+      - name: Publish Queue Manager package
+        run: |
+          cd packages/queue-manager
+          pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
