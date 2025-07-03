@@ -1,6 +1,6 @@
 {
   "name": "@saas-packages/database-manager",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Database manager for SaaS applications using Prisma",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "@saas-packages/core": "^1.0.0"
+    "@saas-packages/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.19.4",

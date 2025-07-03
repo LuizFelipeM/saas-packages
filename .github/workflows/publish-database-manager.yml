@@ -33,8 +33,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
         
-      - name: Build database-manager package
-        run: pnpm --filter database-manager build
+      - name: Generate Prisma client
+        run: pnpm --filter database-manager db:generate
+        
+      - name: Build database-manager package with dependencies
+        run: pnpm --filter database-manager... build
         
       - name: Publish Database Manager package
         run: |

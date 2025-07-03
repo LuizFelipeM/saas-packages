@@ -58,7 +58,7 @@ importers:
         specifier: ^5.22.0
         version: 5.22.0(prisma@5.22.0)
       '@saas-packages/core':
-        specifier: ^1.0.0
+        specifier: workspace:*
         version: link:../core
     devDependencies:
       '@types/node':
@@ -77,11 +77,11 @@ importers:
   packages/queue-manager:
     dependencies:
       '@saas-packages/core':
-        specifier: ^1.0.0
+        specifier: workspace:*
         version: link:../core
       bullmq:
-        specifier: ^5.56.0
-        version: 5.56.0
+        specifier: ^5.56.1
+        version: 5.56.1
       ioredis:
         specifier: ^5.6.1
         version: 5.6.1
@@ -748,8 +748,8 @@ packages:
       fill-range: 7.1.1
     dev: true
 
-  /bullmq@5.56.0:
-    resolution: {integrity: sha512-j5ct2tdc9M8PKcjhJw+euO24BsO1wXBAkNGXYI1R1qvh7FvRldZ5wtLixLWqQ4/crafj0Vrwi+y1kXFXMwBJFA==}
+  /bullmq@5.56.1:
+    resolution: {integrity: sha512-HmX53sf24bbDj5NVrDLDEjy8OSDmbGMESfvFhVK8NpHsA4WlAdKxPDf7c5b9RZf5wZGHyAd2XhWSkE9dmNPYww==}
     dependencies:
       cron-parser: 4.9.0
       ioredis: 5.6.1

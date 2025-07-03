@@ -26,7 +26,10 @@ jobs:
         run: pnpm install
         
       - name: Build all packages
-        run: pnpm build
+        run: |
+          pnpm --filter @saas-packages/core build
+          pnpm --filter database-manager db:generate
+          pnpm build
         
       - name: Publish Core package
         id: publish-core
