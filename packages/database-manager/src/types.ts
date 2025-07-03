@@ -1,5 +1,14 @@
-import { PrismaClient } from '@prisma/client';
-import { ITXClientDenyList } from '@prisma/client/runtime/library';
+// Prisma type declarations - these will be resolved by the consuming application
+declare global {
+  interface PrismaClient {
+    $connect(): Promise<void>;
+    $disconnect(): Promise<void>;
+    $transaction<T>(fn: (prisma: any) => Promise<T>): Promise<T>;
+    $queryRaw(strings: TemplateStringsArray, ...values: any[]): Promise<any>;
+  }
+  
+  type ITXClientDenyList = string | number | symbol;
+}
 
 export type DatabaseManagerLogLevel = 'info' | 'query' | 'warn' | 'error';
 
@@ -18,6 +27,7 @@ export interface DatabaseConfig {
 }
 
 export interface DatabaseManagerConfig extends DatabaseConfig {
+  prismaClient: PrismaClient;
   logQueries?: boolean;
   logErrors?: boolean;
   logWarnings?: boolean;

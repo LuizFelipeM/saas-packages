@@ -1,12 +1,9 @@
-import { PrismaClient } from '@prisma/client';
-import { ITXClientDenyList } from '@prisma/client/runtime/library';
+// PrismaClient will be provided by the consuming application
 import { injectable, inject } from '@saas-packages/core';
 import {
   DatabaseManagerInterface,
   DatabaseManagerConfig,
   DatabaseHealthCheck,
-  DatabaseManagerLogDefinition,
-  DatabaseManagerLogLevel,
 } from './types';
 
 @injectable()
@@ -23,25 +20,12 @@ export class DatabaseManager implements DatabaseManagerInterface {
     this.config = config;
     this.logger = logger || console;
 
-    const logOptions: (DatabaseManagerLogLevel | DatabaseManagerLogDefinition)[] = [];
-    if (this.config.logQueries)
-      logOptions.push({ level: 'query', emit: 'event' });
-    if (this.config.logErrors)
-      logOptions.push({ level: 'error', emit: 'event' });
-    if (this.config.logWarnings)
-      logOptions.push({ level: 'warn', emit: 'event' });
-    if (this.config.logInfo) logOptions.push({ level: 'info', emit: 'event' });
+    if (!this.config.prismaClient) {
+      throw new Error('PrismaClient instance must be provided in database config');
+    }
 
-    this.client = new PrismaClient({
-      datasources: {
-        db: {
-          url: this.config.url,
-        },
-      },
-      log: logOptions.length > 0 ? logOptions : [],
-    });
-
-    this.logger.info('DatabaseManager initialized');
+    this.client = this.config.prismaClient;
+    this.logger.info('DatabaseManager initialized with provided PrismaClient');
   }
 
   getClient(): PrismaClient {

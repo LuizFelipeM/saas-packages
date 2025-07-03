@@ -1,7 +1,7 @@
 {
   "name": "@saas-packages/database-manager",
-  "version": "1.0.3",
-  "description": "Database manager for SaaS applications using Prisma",
+  "version": "1.1.0",
+  "description": "Database manager for SaaS applications using Prisma (requires @prisma/client as peer dependency)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -13,7 +13,6 @@
   },
   "files": [
     "dist/**/*",
-    "prisma/**/*",
     "README.md"
   ],
   "scripts": {
@@ -23,19 +22,17 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "test": "echo \"No tests specified\" && exit 0",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio",
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
     "@saas-packages/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@prisma/client": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.4",
-    "prisma": "^5.22.0",
+    "@prisma/client": "^5.22.0",
     "rimraf": "^5.0.10",
     "typescript": "^5.8.3"
   },

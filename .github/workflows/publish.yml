@@ -26,10 +26,7 @@ jobs:
         run: pnpm install
         
       - name: Build all packages
-        run: |
-          pnpm --filter @saas-packages/core build
-          pnpm --filter database-manager db:generate
-          pnpm build
+        run: pnpm build
           
       - name: Publish Queue Manager package
         id: publish-queue-manager
