@@ -30,15 +30,6 @@ jobs:
           pnpm --filter @saas-packages/core build
           pnpm --filter database-manager db:generate
           pnpm build
-        
-      - name: Publish Core package
-        id: publish-core
-        continue-on-error: true
-        run: |
-          cd packages/core
-          pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           
       - name: Publish Queue Manager package
         id: publish-queue-manager
