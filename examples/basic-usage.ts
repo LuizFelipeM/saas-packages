@@ -1,10 +1,11 @@
 import { Container, ConsoleLogger } from '@saas-packages/core';
-import { QueueManager, QueueServiceProvider } from '@saas-packages/queue-manager';
+import { QueueManager, QueueServiceProvider, JobProcessor, JobData, JobResult } from '@saas-packages/queue-manager';
 import { DatabaseManager, DatabaseServiceProvider } from '@saas-packages/database-manager';
+import { Job } from 'bullmq';
 
-// Example job processor
-class EmailJobProcessor {
-  async process(job: any) {
+// Example job processor with proper typing
+class EmailJobProcessor implements JobProcessor<JobData> {
+  async process(job: Job<JobData>): Promise<JobResult> {
     console.log(`Processing email job: ${job.id}`);
     console.log('Job data:', job.data);
     

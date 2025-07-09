@@ -124,16 +124,19 @@ const databaseManager = container.resolve<DatabaseManager>('database.manager');
 ### Queue Manager Example
 
 ```typescript
-// Create a job processor
-class EmailJobProcessor {
-  async process(job: any) {
+import { JobProcessor, JobData, JobResult } from '@saas-packages/queue-manager';
+import { Job } from 'bullmq';
+
+// Create a job processor with proper typing
+class EmailJobProcessor implements JobProcessor<JobData> {
+  async process(job: Job<JobData>): Promise<JobResult> {
     console.log(`Processing email job: ${job.id}`);
     // Process the job...
-    return { success: true };
+    return { success: true, data: { processed: true } };
   }
 }
 
-// Create queue and worker
+// Create queue and worker with improved type safety
 const emailQueue = queueManager.createQueue('emails');
 const emailWorker = queueManager.createWorker('emails', new EmailJobProcessor());
 

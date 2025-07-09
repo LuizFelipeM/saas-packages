@@ -63,7 +63,7 @@ export interface JobProcessor<T = JobData> {
 
 export interface QueueManagerInterface extends EventEmitter {
   createQueue<T = any>(name: string, options?: Partial<QueueOptions>): Queue<T>;
-  createWorker<T = any>(queueName: string, processor: JobProcessor<T>, options?: Partial<WorkerOptions>): Worker<T>;
+  createWorker<P extends JobProcessor<T>, T = unknown>(queueName: string, processor: P, options?: Partial<Omit<WorkerOptions, 'connection'>>): Worker<T>;
   addJob<T = JobData>(
     queueName: string,
     data: T,

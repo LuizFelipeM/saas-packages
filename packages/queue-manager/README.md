@@ -84,7 +84,7 @@ const emailWorker = queueManager.createWorker('emails', new EmailJobProcessor(),
 
 ### Typed Job Data
 
-For better type safety, you can define specific job data types:
+For better type safety, you can define specific job data types. The `createWorker` method now provides improved generic type support:
 
 ```typescript
 interface EmailJobData {
@@ -118,9 +118,24 @@ class TypedEmailJobProcessor implements JobProcessor<EmailJobData> {
   }
 }
 
-// Create worker with typed data
+// Create worker with typed data - improved type inference
 const emailWorker = queueManager.createWorker('emails', new TypedEmailJobProcessor());
 ```
+
+The `createWorker` method signature has been enhanced to provide better type safety:
+
+```typescript
+createWorker<P extends JobProcessor<T>, T = unknown>(
+  queueName: string,
+  processor: P,
+  options?: Partial<Omit<WorkerOptions, 'connection'>>
+): Worker<T>
+```
+
+This ensures that:
+- The processor type is properly constrained to `JobProcessor<T>`
+- The worker returns the correct generic type `Worker<T>`
+- The options parameter excludes the `connection` property (handled internally)
 
 ### Worker Event Handling
 
