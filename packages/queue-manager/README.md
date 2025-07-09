@@ -1,6 +1,6 @@
 # @saas-packages/queue-manager
 
-Queue management for SaaS applications using BullMQ.
+A flexible queue management system built on top of BullMQ.
 
 ## Installation
 
@@ -15,7 +15,7 @@ import { QueueManager, QueueServiceProvider } from '@saas-packages/queue-manager
 import { container } from '@saas-packages/core';
 
 const queueConfig = {
-  redis: { host: 'localhost', port: 6379 },
+  connection: { host: 'localhost', port: 6379 },
   prefix: 'myapp'
 };
 
@@ -23,6 +23,71 @@ const provider = new QueueServiceProvider(queueConfig);
 provider.register(container);
 
 const queueManager = container.resolve('queue.manager');
+```
+
+## Configuration
+
+The queue manager accepts flexible connection options:
+
+### Using RedisOptions (Recommended)
+
+```typescript
+import { RedisOptions } from 'ioredis';
+
+const provider = new QueueServiceProvider({
+  connection: {
+    host: 'localhost',
+    port: 6379,
+    password: 'your-password',
+    db: 0,
+    // Any other RedisOptions properties
+    retryDelayOnFailover: 100,
+    maxRetriesPerRequest: 3,
+  },
+  prefix: 'myapp',
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: { type: 'exponential' as const, delay: 2000 }
+  }
+});
+```
+
+### Using Redis Instance
+
+```typescript
+import Redis from 'ioredis';
+
+const redis = new Redis({
+  host: 'localhost',
+  port: 6379,
+  password: 'your-password',
+});
+
+const provider = new QueueServiceProvider({
+  connection: redis,
+  prefix: 'myapp'
+});
+```
+
+### Using Cluster Options
+
+```typescript
+import { ClusterOptions } from 'ioredis';
+
+const provider = new QueueServiceProvider({
+  connection: {
+    nodes: [
+      { host: 'redis-node-1', port: 6379 },
+      { host: 'redis-node-2', port: 6379 },
+      { host: 'redis-node-3', port: 6379 },
+    ],
+    // Any other ClusterOptions properties
+    redisOptions: {
+      password: 'your-password',
+    }
+  },
+  prefix: 'myapp'
+});
 ```
 
 ## Creating Workers
@@ -371,7 +436,7 @@ async function main() {
   const logger = new ConsoleLogger();
   
   const queueConfig = {
-    redis: { host: 'localhost', port: 6379 },
+    connection: { host: 'localhost', port: 6379 },
     prefix: 'myapp',
     defaultJobOptions: {
       attempts: 3,

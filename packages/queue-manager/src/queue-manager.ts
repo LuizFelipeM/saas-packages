@@ -3,7 +3,6 @@ import {
   Worker,
   QueueOptions,
   WorkerOptions,
-  ConnectionOptions,
   Job,
   JobsOptions,
 } from 'bullmq';
@@ -36,14 +35,11 @@ export class QueueManager
   ) {
     super();
 
-    const connectionOptions: ConnectionOptions = {
-      host: this.config.redis.host,
-      port: this.config.redis.port,
-      password: this.config.redis.password || '',
-      db: this.config.redis.db || 0,
-    };
+    this.redis =
+      this.config.connection instanceof Redis
+        ? this.config.connection.duplicate({ maxRetriesPerRequest: null })
+        : new Redis(this.config.connection);
 
-    this.redis = new Redis(connectionOptions);
     this.logger?.info('QueueManager initialized');
   }
 

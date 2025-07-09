@@ -1,5 +1,6 @@
-import { Job, Queue, Worker, QueueOptions, WorkerOptions } from 'bullmq';
+import { Job, Queue, Worker, QueueOptions, WorkerOptions, ClusterOptions, RedisOptions } from 'bullmq';
 import { EventEmitter } from 'events';
+import Redis from 'ioredis';
 
 export interface JobData {
   [key: string]: any;
@@ -43,18 +44,10 @@ export interface QueueJobOptions {
   removeOnFail?: boolean | number;
 }
 
-export interface QueueConfig {
-  redis: {
-    host: string;
-    port: number;
-    password?: string;
-    db?: number;
-  };
-  prefix?: string;
-}
-
-export interface QueueManagerConfig extends QueueConfig {
+export interface QueueManagerConfig {
+  connection: Redis | RedisOptions | ClusterOptions;
   defaultJobOptions?: QueueJobOptions;
+  prefix?: string;
 }
 
 export interface JobProcessor<T = JobData> {
