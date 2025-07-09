@@ -5,6 +5,7 @@ import {
   WorkerOptions,
   ConnectionOptions,
   Job,
+  JobsOptions,
 } from 'bullmq';
 import Redis from 'ioredis';
 import { injectable, inject, Logger } from '@saas-packages/core';
@@ -16,6 +17,7 @@ import {
   QueueJobOptions,
   QueueManagerEvent,
   QueueManagerListener,
+  JobResult,
 } from './types';
 import { EventEmitter } from 'events';
 
@@ -94,9 +96,9 @@ export class QueueManager
     return queue;
   }
 
-  createWorker<T = any>(
+  createWorker<P extends JobProcessor<T>, T = unknown>(
     queueName: string,
-    processor: JobProcessor<T>,
+    processor: P,
     options?: Partial<Omit<WorkerOptions, 'connection'>>
   ): Worker<T> {
     if (this.workers.has(queueName)) {
@@ -109,14 +111,60 @@ export class QueueManager
     const workerOptions: WorkerOptions = {
       connection: this.redis,
       prefix: this.config.prefix || 'bull',
-      ...options
+      ...options,
     };
 
-    const worker = new Worker<T>(
-      queueName,
-      processor.process.bind(processor),
-      workerOptions
-    );
+    const wrappedProcessor = async (
+      job: Job<T>,
+      token?: string
+    ): Promise<JobResult> => {
+      try {
+        const result = await processor.process(job, token);
+
+        if (result.moveToDelay) {
+          const targetQueueName = result.moveToDelay.queueName || queueName;
+          const targetQueue = this.getQueue(targetQueueName);
+
+          if (!targetQueue) {
+            throw new Error(
+              `Target queue ${targetQueueName} not found for moveToDelay`
+            );
+          }
+
+          const jobOptions: JobsOptions = {
+            delay: result.moveToDelay.delay,
+            ...job.opts,
+          };
+
+          if (job.id) {
+            jobOptions.jobId = job.id;
+          }
+
+          await targetQueue.add(job.name, job.data, jobOptions);
+
+          job.log(
+            `Job ${job.id} moved to delay queue ${targetQueueName} with ${result.moveToDelay.delay}ms delay`
+          );
+
+          return {
+            success: true,
+            data: {
+              movedToDelay: true,
+              targetQueue: targetQueueName,
+              delay: result.moveToDelay.delay,
+              originalResult: result.data,
+            },
+          };
+        }
+
+        return result;
+      } catch (error) {
+        this.logger?.error(`Error processing job ${job.id}:`, error);
+        throw error;
+      }
+    };
+
+    const worker = new Worker<T>(queueName, wrappedProcessor, workerOptions);
     this.workers.set(queueName, worker);
     this.logger?.info(`Worker for queue ${queueName} created`);
 

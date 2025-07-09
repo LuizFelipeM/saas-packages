@@ -9,6 +9,10 @@ export interface JobResult {
   success: boolean;
   data?: any;
   error?: string;
+  moveToDelay?: {
+    delay: number;
+    queueName?: string;
+  };
 }
 
 export type QueueManagerEvent =
@@ -54,7 +58,7 @@ export interface QueueManagerConfig extends QueueConfig {
 }
 
 export interface JobProcessor<T = JobData> {
-  process(job: Job<T>): Promise<JobResult>;
+  process(job: Job<T>, token?: string): Promise<JobResult>;
 }
 
 export interface QueueManagerInterface extends EventEmitter {
