@@ -70,7 +70,7 @@ export class QueueManager
 
   createQueue<T = any>(
     name: string,
-    options?: Partial<QueueOptions>
+    options?: Partial<Omit<QueueOptions, 'connection'>>
   ): Queue<T> {
     if (this.queues.has(name)) {
       this.logger?.warn(
@@ -79,15 +79,13 @@ export class QueueManager
       return this.queues.get(name) as Queue<T>;
     }
 
-    const queueOptions: QueueOptions = {
-      connection: this.redis,
-      prefix: this.config.prefix || 'bull',
+    const queue = new Queue<T>(name, {
       ...options,
-    };
-
-    const queue = new Queue<T>(name, queueOptions);
+      connection: this.redis,
+    });
     this.queues.set(name, queue);
     this.logger?.info(`Queue ${name} created`);
+    this.notify('queueCreated', queue);
 
     return queue;
   }
@@ -164,6 +162,8 @@ export class QueueManager
     this.workers.set(queueName, worker);
     this.logger?.info(`Worker for queue ${queueName} created`);
 
+    this.notify('workerCreated', worker);
+
     return worker;
   }
 
@@ -212,6 +212,7 @@ export class QueueManager
       await queue.close();
       this.queues.delete(name);
       this.logger?.info(`Queue ${name} closed`);
+      this.notify('queueRemoved', queue);
     }
   }
 
@@ -221,6 +222,7 @@ export class QueueManager
       await worker.close();
       this.workers.delete(queueName);
       this.logger?.info(`Worker for queue ${queueName} closed`);
+      this.notify('workerRemoved', worker);
     }
   }
 
@@ -235,5 +237,6 @@ export class QueueManager
     await Promise.all([...queuePromises, ...workerPromises]);
     await this.redis.quit();
     this.logger?.info('All queues and workers closed');
+    this.notify('queueManagerClosed');
   }
 }

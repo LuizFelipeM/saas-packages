@@ -25,6 +25,72 @@ provider.register(container);
 const queueManager = container.resolve('queue.manager');
 ```
 
+## Event Emitter & Custom Events
+
+The `QueueManager` extends Node.js's `EventEmitter`, allowing you to subscribe to custom events for advanced monitoring and integration. This enables you to react to queue and worker lifecycle changes, and to build custom logic around queue management.
+
+### Available Events
+
+- `queueCreated`: Emitted when a new queue is created. Listener receives the created `Queue` instance.
+- `queueRemoved`: Emitted when a queue is closed/removed. Listener receives the removed `Queue` instance.
+- `workerCreated`: Emitted when a new worker is created. Listener receives the created `Worker` instance.
+- `workerRemoved`: Emitted when a worker is closed/removed. Listener receives the removed `Worker` instance.
+- `queueManagerClosed`: Emitted when all queues and workers are closed.
+- `newListener`: Emitted when a new event listener is added.
+- `removeListener`: Emitted when an event listener is removed.
+
+### Subscribing to Events
+
+You can subscribe to events using the `subscribe` method or the standard `on` method from `EventEmitter`:
+
+```typescript
+// Using subscribe (recommended for type safety)
+queueManager.subscribe('queueCreated', (queue) => {
+  console.log('A new queue was created:', queue.name);
+});
+
+queueManager.subscribe('workerRemoved', (worker) => {
+  console.log('A worker was removed:', worker.name);
+});
+
+// Using EventEmitter's on method (for custom/advanced usage)
+queueManager.on('queueManagerClosed', () => {
+  console.log('All queues and workers have been closed.');
+});
+```
+
+### Unsubscribing from Events
+
+You can remove listeners using the `unsubscribe` method or the standard `off` method:
+
+```typescript
+function onQueueCreated(queue) {
+  console.log('Queue created:', queue.name);
+}
+
+queueManager.subscribe('queueCreated', onQueueCreated);
+// ... later
+queueManager.unsubscribe('queueCreated', onQueueCreated);
+```
+
+### Example: Monitoring Queue and Worker Lifecycle
+
+```typescript
+queueManager.subscribe('queueCreated', (queue) => {
+  logger.info(`[Event] Queue created: ${queue.name}`);
+});
+
+queueManager.subscribe('workerCreated', (worker) => {
+  logger.info(`[Event] Worker created: ${worker.name}`);
+});
+
+queueManager.subscribe('queueManagerClosed', () => {
+  logger.info('[Event] All queues and workers closed');
+});
+```
+
+> **Tip:** Use these events to integrate with monitoring tools, trigger notifications, or implement custom resource management logic.
+
 ## Configuration
 
 The queue manager accepts flexible connection options:
