@@ -104,7 +104,6 @@ export class QueueManager
 
     const workerOptions: WorkerOptions = {
       connection: this.redis,
-      prefix: this.config.prefix || 'bull',
       ...options,
     };
 
