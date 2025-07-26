@@ -1,5 +1,4 @@
-// PrismaClient will be provided by the consuming application
-import { injectable, inject } from '@saas-packages/core';
+import { injectable, inject, Logger } from '@saas-packages/core';
 import {
   DatabaseManagerInterface,
   DatabaseManagerConfig,
@@ -8,92 +7,69 @@ import {
 
 @injectable()
 export class DatabaseManager implements DatabaseManagerInterface {
-  private client: PrismaClient;
-  private logger: any;
-  private config: DatabaseManagerConfig;
-  private isConnectedFlag: boolean = false;
+  private readonly prismaClient: PrismaClient;
+  private isPrismaClientConnected: boolean = false;
 
   constructor(
-    @inject('database.config') config: DatabaseManagerConfig,
-    @inject('database.logger') logger?: any
+    @inject('database.config') private readonly config: DatabaseManagerConfig,
+    @inject('database.logger') private readonly logger?: Logger
   ) {
-    this.config = config;
-    this.logger = logger || console;
-
     if (!this.config.prismaClient) {
       throw new Error('PrismaClient instance must be provided in database config');
     }
 
-    this.client = this.config.prismaClient;
-    this.logger.info('DatabaseManager initialized with provided PrismaClient');
+    this.prismaClient = this.config.prismaClient;
+    this.logger?.info('DatabaseManager initialized with provided PrismaClient');
   }
 
-  getClient(): PrismaClient {
-    return this.client;
+  get client(): PrismaClient {
+    return this.prismaClient;
+  }
+
+  get isConnected(): boolean {
+    return this.isPrismaClientConnected;
   }
 
   async connect(): Promise<void> {
     try {
-      await this.client.$connect();
-      this.isConnectedFlag = true;
-      this.logger.info('Database connected successfully');
+      await this.prismaClient.$connect();
+      this.isPrismaClientConnected = true;
+      this.logger?.info('Database connected successfully');
     } catch (error) {
-      this.logger.error('Failed to connect to database:', error);
+      this.logger?.error('Failed to connect to database:', error);
       throw error;
     }
   }
 
   async disconnect(): Promise<void> {
     try {
-      await this.client.$disconnect();
-      this.isConnectedFlag = false;
-      this.logger.info('Database disconnected successfully');
+      await this.prismaClient.$disconnect();
+      this.isPrismaClientConnected = false;
+      this.logger?.info('Database disconnected successfully');
     } catch (error) {
-      this.logger.error('Failed to disconnect from database:', error);
+      this.logger?.error('Failed to disconnect from database:', error);
       throw error;
     }
-  }
-
-  isConnected(): boolean {
-    return this.isConnectedFlag;
   }
 
   async executeTransaction<T>(
     fn: (prisma: Omit<PrismaClient, ITXClientDenyList>) => Promise<T>
   ): Promise<T> {
     try {
-      const result = await this.client.$transaction(fn);
-      this.logger.debug('Transaction executed successfully');
+      const result = await this.prismaClient.$transaction(fn);
+      this.logger?.debug('Transaction executed successfully');
       return result;
     } catch (error) {
-      this.logger.error('Transaction failed:', error);
+      this.logger?.error('Transaction failed:', error);
       throw error;
     }
   }
 
-  async healthCheck(): Promise<boolean> {
+  async healthCheck(): Promise<DatabaseHealthCheck> {
     try {
       const startTime = Date.now();
 
-      // Test basic connection
-      await this.client.$queryRaw`SELECT 1`;
-
-      const latency = Date.now() - startTime;
-
-      this.logger.debug(`Health check passed with latency: ${latency}ms`);
-      return true;
-    } catch (error) {
-      this.logger.error('Health check failed:', error);
-      return false;
-    }
-  }
-
-  async detailedHealthCheck(): Promise<DatabaseHealthCheck> {
-    const startTime = Date.now();
-
-    try {
-      // Test connection
-      await this.client.$queryRaw`SELECT 1`;
+      await this.prismaClient.$queryRaw`SELECT 1`;
       const latency = Date.now() - startTime;
 
       return {

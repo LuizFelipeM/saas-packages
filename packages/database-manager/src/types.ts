@@ -35,14 +35,14 @@ export interface DatabaseManagerConfig extends DatabaseConfig {
 }
 
 export interface DatabaseManagerInterface {
-  getClient(): PrismaClient;
+  get client(): PrismaClient;
+  get isConnected(): boolean;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  isConnected(): boolean;
   executeTransaction<T>(
     fn: (prisma: Omit<PrismaClient, ITXClientDenyList>) => Promise<T>
   ): Promise<T>;
-  healthCheck(): Promise<boolean>;
+  healthCheck(): Promise<DatabaseHealthCheck>;
 }
 
 export interface MigrationResult {
