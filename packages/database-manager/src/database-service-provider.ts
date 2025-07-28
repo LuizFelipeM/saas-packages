@@ -8,9 +8,9 @@ import { DatabaseManager } from './database-manager';
 import { DatabaseManagerConfig, DatabaseManagerInterface } from './types';
 
 @injectable()
-export class DatabaseServiceProvider extends BaseServiceProvider {
+export class DatabaseServiceProvider<T extends PrismaClient> extends BaseServiceProvider {
   constructor(
-    private config: DatabaseManagerConfig,
+    private config: DatabaseManagerConfig<T>,
     private logger?: Logger
   ) {
     super();
@@ -30,7 +30,7 @@ export class DatabaseServiceProvider extends BaseServiceProvider {
     }
 
     // Register the database manager as a singleton
-    container.registerSingleton<DatabaseManagerInterface>(
+    container.registerSingleton<DatabaseManagerInterface<T>>(
       'database.manager',
       DatabaseManager
     );
