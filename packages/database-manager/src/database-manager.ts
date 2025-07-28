@@ -6,23 +6,28 @@ import {
 } from './types';
 
 @injectable()
-export class DatabaseManager implements DatabaseManagerInterface {
-  private readonly prismaClient: PrismaClient;
+export class DatabaseManager<T extends PrismaClient>
+  implements DatabaseManagerInterface<T>
+{
+  private readonly prismaClient: T;
   private isPrismaClientConnected: boolean = false;
 
   constructor(
-    @inject('database.config') private readonly config: DatabaseManagerConfig,
+    @inject('database.config')
+    private readonly config: DatabaseManagerConfig<T>,
     @inject('database.logger') private readonly logger?: Logger
   ) {
     if (!this.config.prismaClient) {
-      throw new Error('PrismaClient instance must be provided in database config');
+      throw new Error(
+        'PrismaClient instance must be provided in database config'
+      );
     }
 
     this.prismaClient = this.config.prismaClient;
     this.logger?.info('DatabaseManager initialized with provided PrismaClient');
   }
 
-  get client(): PrismaClient {
+  get client(): T {
     return this.prismaClient;
   }
 
@@ -52,9 +57,9 @@ export class DatabaseManager implements DatabaseManagerInterface {
     }
   }
 
-  async executeTransaction<T>(
-    fn: (prisma: Omit<PrismaClient, ITXClientDenyList>) => Promise<T>
-  ): Promise<T> {
+  async executeTransaction<R>(
+    fn: (prisma: Omit<T, ITXClientDenyList>) => Promise<R>
+  ): Promise<R> {
     try {
       const result = await this.prismaClient.$transaction(fn);
       this.logger?.debug('Transaction executed successfully');
@@ -87,7 +92,8 @@ export class DatabaseManager implements DatabaseManagerInterface {
           connection: false,
           query: false,
         },
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error:
+          error instanceof Error ? error : new Error(JSON.stringify(error)),
       };
     }
   }

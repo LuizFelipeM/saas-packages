@@ -6,7 +6,7 @@ declare global {
     $transaction<T>(fn: (prisma: any) => Promise<T>): Promise<T>;
     $queryRaw(strings: TemplateStringsArray, ...values: any[]): Promise<any>;
   }
-  
+
   type ITXClientDenyList = string | number | symbol;
 }
 
@@ -17,38 +17,19 @@ export type DatabaseManagerLogDefinition = {
   emit: 'event' | 'stdout';
 };
 
-export interface DatabaseConfig {
-  url: string;
-  host?: string;
-  port?: number;
-  username?: string;
-  password?: string;
-  database?: string;
+export interface DatabaseManagerConfig<T extends PrismaClient> {
+  prismaClient: T;
 }
 
-export interface DatabaseManagerConfig extends DatabaseConfig {
-  prismaClient: PrismaClient;
-  logQueries?: boolean;
-  logErrors?: boolean;
-  logWarnings?: boolean;
-  logInfo?: boolean;
-}
-
-export interface DatabaseManagerInterface {
-  get client(): PrismaClient;
+export interface DatabaseManagerInterface<T extends PrismaClient> {
+  get client(): T;
   get isConnected(): boolean;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  executeTransaction<T>(
-    fn: (prisma: Omit<PrismaClient, ITXClientDenyList>) => Promise<T>
-  ): Promise<T>;
+  executeTransaction<R>(
+    fn: (prisma: Omit<T, ITXClientDenyList>) => Promise<R>
+  ): Promise<R>;
   healthCheck(): Promise<DatabaseHealthCheck>;
-}
-
-export interface MigrationResult {
-  success: boolean;
-  appliedMigrations?: string[];
-  error?: string;
 }
 
 export interface DatabaseHealthCheck {
@@ -58,5 +39,5 @@ export interface DatabaseHealthCheck {
     query: boolean;
     latency?: number;
   };
-  error?: string;
+  error?: Error;
 }
