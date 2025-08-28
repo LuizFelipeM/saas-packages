@@ -1,11 +1,4 @@
-import {
-  Queue,
-  Worker,
-  QueueOptions,
-  WorkerOptions,
-  Job,
-  JobsOptions,
-} from 'bullmq';
+import { Queue, Worker, QueueOptions, WorkerOptions, Job, DelayedError } from 'bullmq';
 import Redis from 'ioredis';
 import { injectable, inject, Logger } from '@saas-packages/core';
 import {
@@ -114,40 +107,13 @@ export class QueueManager
       try {
         const result = await processor.process(job, token);
 
-        if (result.moveToDelay) {
-          const targetQueueName = result.moveToDelay.queueName || queueName;
-          const targetQueue = this.getQueue(targetQueueName);
+        if (result.delay) {
+          job.moveToDelayed(Date.now() + result.delay, token);
 
-          if (!targetQueue) {
-            throw new Error(
-              `Target queue ${targetQueueName} not found for moveToDelay`
-            );
-          }
-
-          const jobOptions: JobsOptions = {
-            delay: result.moveToDelay.delay,
-            ...job.opts,
-          };
-
-          if (job.id) {
-            jobOptions.jobId = job.id;
-          }
-
-          await targetQueue.add(job.name, job.data, jobOptions);
-
-          job.log(
-            `Job ${job.id} moved to delay queue ${targetQueueName} with ${result.moveToDelay.delay}ms delay`
-          );
-
-          return {
-            success: true,
-            data: {
-              movedToDelay: true,
-              targetQueue: targetQueueName,
-              delay: result.moveToDelay.delay,
-              originalResult: result.data,
-            },
-          };
+          const message = `Job ${job.id} moved to delay queue with ${result.delay}ms delay`;
+          
+          job.log(message);
+          throw new DelayedError(message);
         }
 
         return result;

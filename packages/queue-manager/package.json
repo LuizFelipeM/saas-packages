@@ -1,6 +1,6 @@
 {
   "name": "@saas-packages/queue-manager",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Queue manager for SaaS applications using BullMQ",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

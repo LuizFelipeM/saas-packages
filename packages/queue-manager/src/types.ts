@@ -1,4 +1,12 @@
-import { Job, Queue, Worker, QueueOptions, WorkerOptions, ClusterOptions, RedisOptions } from 'bullmq';
+import {
+  Job,
+  Queue,
+  Worker,
+  QueueOptions,
+  WorkerOptions,
+  ClusterOptions,
+  RedisOptions,
+} from 'bullmq';
 import { EventEmitter } from 'events';
 import Redis from 'ioredis';
 
@@ -10,20 +18,17 @@ export interface JobResult {
   success: boolean;
   data?: any;
   error?: string;
-  moveToDelay?: {
-    delay: number;
-    queueName?: string;
-  };
+  delay?: number;
 }
 
 export type QueueManagerEvent =
-  | "queueCreated"
-  | "queueRemoved"
-  | "workerCreated"
-  | "workerRemoved"
-  | "newListener"
-  | "removeListener"
-  | "queueManagerClosed";
+  | 'queueCreated'
+  | 'queueRemoved'
+  | 'workerCreated'
+  | 'workerRemoved'
+  | 'newListener'
+  | 'removeListener'
+  | 'queueManagerClosed';
 
 export interface QueueManagerListener {
   queueEvent: (queue: Queue) => void;
@@ -56,7 +61,11 @@ export interface JobProcessor<T = JobData> {
 
 export interface QueueManagerInterface extends EventEmitter {
   createQueue<T = any>(name: string, options?: Partial<QueueOptions>): Queue<T>;
-  createWorker<P extends JobProcessor<T>, T = unknown>(queueName: string, processor: P, options?: Partial<Omit<WorkerOptions, 'connection'>>): Worker<T>;
+  createWorker<P extends JobProcessor<T>, T = unknown>(
+    queueName: string,
+    processor: P,
+    options?: Partial<Omit<WorkerOptions, 'connection'>>
+  ): Worker<T>;
   addJob<T = JobData>(
     queueName: string,
     data: T,
@@ -75,11 +84,14 @@ export interface QueueManagerInterface extends EventEmitter {
       ? QueueManagerListener['queueEvent']
       : E extends 'workerCreated' | 'workerRemoved' | 'workerUpdated'
         ? QueueManagerListener['workerEvent']
-          : E extends 'newListener' | 'removeListener'
-            ? QueueManagerListener['listenerEvent']
-            : E extends 'queueManagerClosed'
-              ? QueueManagerListener['queueManagerClosed']
-              : never
+        : E extends 'newListener' | 'removeListener'
+          ? QueueManagerListener['listenerEvent']
+          : E extends 'queueManagerClosed'
+            ? QueueManagerListener['queueManagerClosed']
+            : never
   ): void;
-  unsubscribe(event: QueueManagerEvent, listener: (...args: any[]) => void): void;
-} 
+  unsubscribe(
+    event: QueueManagerEvent,
+    listener: (...args: any[]) => void
+  ): void;
+}
